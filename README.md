@@ -1,3 +1,5 @@
+![alt text](https://github.com/DarronAtkinson/HawkECS-Swift/blob/master/HawkEngine.png "HawkEngine Logo")
+
 # HawkECS-Swift
 A protocol oriented entity component system written in Swift
 
