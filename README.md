@@ -61,6 +61,7 @@ The only required class is:
 Feel free to use this ECS as an alternative to the GameplayKit ECS
 
 note: GKAgent can be made into a component using the HKComponent protocol. 
-      The updateWithDeltaTime(seconds: ) method will need to be called within your GKAgentComponentSystem
+      The updateWithDeltaTime(seconds: ) method 
+      will need to be called within your GKAgentComponentSystem
 
   
