@@ -40,9 +40,9 @@ class HKEngine {
   var entities: [Int] = []
   
   /**
-   * A dictionary of entity name. Key: EntityID, Value: EntityName
+   * A dictionary of entity name. Key: EntityName, Value: EntityID
    */
-  var entityNames: [Int: String] = [:]
+  var entityNames: [String: Int] = [:]
   
   /**
    * An array of HKComponentSystems
@@ -94,7 +94,7 @@ extension HKEngine {
   func addEntity() -> HKEntity {
     let ID = nextID
     entities.append(ID)
-    return HKEntity(ID: ID, engine: self)
+    return HKEntity(name: nil, ID: ID, engine: self)
   }
   
   /**
@@ -103,7 +103,7 @@ extension HKEngine {
   func addEntity(withName name: String) -> HKEntity {
     let ID = nextID
     entities.append(ID)
-    entityNames[ID] = name
+    entityNames[name] = ID
     return HKEntity(name: name, ID: ID, engine: self)
   }
   
@@ -112,7 +112,7 @@ extension HKEngine {
    */
   func remove(entity: HKEntity) {
     entities = entities.filter({ $0 != entity.ID })
-    entityNames[entity.ID] = nil
+    if let name = entity.name { entityNames[name] = nil }
     components.remove(entity: entity.ID)
   }
   
@@ -121,15 +121,16 @@ extension HKEngine {
    */
   func remove(entity: Int) {
     entities = entities.filter({ $0 != entity })
-    entityNames[entity] = nil
+    if let i = entityNames.indexOf({ $0.1 == entity }) { entityNames.removeAtIndex(i) }
     components.remove(entity: entity)
   }
   
   /**
    * Sets a name for the given entity ID
    */
-  func set(name: String?, forEntity id: Int) {
-    entityNames[id] = name
+  func set(name: String, forEntity id: Int) -> HKEntity {
+    entityNames[name] = id
+    return HKEntity(name: name, ID: id, engine: self)
   }
   
   /**
@@ -137,9 +138,18 @@ extension HKEngine {
    */
   func getEntites(name: String) -> [HKEntity] {
     return entityNames
-      .filter({ $0.1 == name })
-      .map({ HKEntity(name: $0.1, ID: $0.0, engine: self) })
+      .filter({ $0.0 == name })
+      .map({ HKEntity(name: $0.0, ID: $0.1, engine: self) })
   }
+  
+  /**
+   * Returns the component for the entity name provide
+   */
+  func getComponent<T: HKComponent>(forEntity name: String) -> T? {
+    guard let id = entityNames[name] else { return nil }
+    return components.get(forEntity: id)
+  }
+  
 }
 
 // MARK: Systems
