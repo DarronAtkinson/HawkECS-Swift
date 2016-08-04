@@ -40,9 +40,9 @@ class HKEngine {
   var entities: [Int] = []
   
   /**
-   * A dictionary of entity name. Key: EntityName, Value: EntityID
+   * A dictionary of entity name. Key: EntityID, Value: EntityName
    */
-  var entityNames: [String: Int] = [:]
+  var entityNames: [Int: String] = [:]
   
   /**
    * An array of HKComponentSystems
@@ -103,7 +103,7 @@ extension HKEngine {
   func addEntity(withName name: String) -> HKEntity {
     let ID = nextID
     entities.append(ID)
-    entityNames[name] = ID
+    entityNames[ID] = name
     return HKEntity(name: name, ID: ID, engine: self)
   }
   
@@ -112,7 +112,7 @@ extension HKEngine {
    */
   func remove(entity: HKEntity) {
     entities = entities.filter({ $0 != entity.ID })
-    if let name = entity.name { entityNames[name] = nil }
+    entityNames[entity.ID] = nil
     components.remove(entity: entity.ID)
   }
   
@@ -121,16 +121,15 @@ extension HKEngine {
    */
   func remove(entity: Int) {
     entities = entities.filter({ $0 != entity })
-    if let i = entityNames.indexOf({ $0.1 == entity }) { entityNames.removeAtIndex(i) }
+    entityNames[entity] = nil
     components.remove(entity: entity)
   }
   
   /**
    * Sets a name for the given entity ID
    */
-  func set(name: String, forEntity id: Int) -> HKEntity {
-    entityNames[name] = id
-    return HKEntity(name: name, ID: id, engine: self)
+  func set(name: String?, forEntity id: Int) {
+    entityNames[id] = name
   }
   
   /**
@@ -138,16 +137,17 @@ extension HKEngine {
    */
   func getEntites(name: String) -> [HKEntity] {
     return entityNames
-      .filter({ $0.0 == name })
-      .map({ HKEntity(name: $0.0, ID: $0.1, engine: self) })
+      .filter({ $0.1 == name })
+      .map({ HKEntity(name: $0.1, ID: $0.0, engine: self) })
   }
   
   /**
-   * Returns the component for the entity name provide
+   * Returns an array of specified components for the entity name provide
    */
-  func getComponent<T: HKComponent>(forEntity name: String) -> T? {
-    guard let id = entityNames[name] else { return nil }
-    return components.get(forEntity: id)
+  func getComponents<T: HKComponent>(forEntity name: String) -> [T] {
+    return entityNames
+      .filter({ $0.1 == name })
+      .flatMap({ self.components.get(forEntity: $0.0) })
   }
   
 }
