@@ -27,12 +27,7 @@ struct HKEntity {
   /**
    * Optional name property, can be used to group entities
    */
-  var name: String? = nil {
-    // Assigns the name to the entity ID in the engine class
-    didSet {
-      engine.set(name, forEntity: ID)
-    }
-  }
+  let name: String?
   
   /**
    * A unique property, used to identify an entity in the engine
@@ -47,7 +42,7 @@ struct HKEntity {
   /**
    * Initialize the entity with a name and ID
    */
-  init(name: String, ID: Int, engine: HKEngine) {
+  init(name: String?, ID: Int, engine: HKEngine) {
     self.ID = ID
     self.name = name
     self.engine = engine
@@ -58,6 +53,7 @@ struct HKEntity {
    */
   init(ID: Int, engine: HKEngine) {
     self.ID = ID
+    self.name = nil
     self.engine = engine
   }
   
