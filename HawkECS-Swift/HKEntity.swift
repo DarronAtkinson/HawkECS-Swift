@@ -27,7 +27,11 @@ struct HKEntity {
   /**
    * Optional name property, can be used to group entities
    */
-  let name: String?
+  var name: String? = nil {
+    didSet {
+      engine.set(name, forEntity: ID)
+    }
+  }
   
   /**
    * A unique property, used to identify an entity in the engine
