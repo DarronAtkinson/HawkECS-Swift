@@ -52,30 +52,3 @@ protocol HKEngineDelegate: class {
   */
   func addEntity(entity: HKEntity)
 }
-
-
-extension GameScene: HKEngineDelegate {
-  
-  func removeEntity(id: Int) {
-    if let render: RenderComponent = engine.components.get(forEntity: id) {
-      render.removeFromParent()
-    }
-  }
-  
-  func newEntity(name: String, group: String) -> HKEntity {
-    return engine.createEntity(name, group: group)
-  }
-  
-  func addEntity(entity: HKEntity) {
-    addEntity(entity, toLayer: .sprites)
-  }
-
-  func addEntity(entity: HKEntity, toLayer layer: HKGameLayer) {
-    guard let render: RenderComponent = engine.getComponent(forEntity: entity.id) else { return }
-    addNode(render, to: layer)
-    
-    if let emitter: EmitterComponent = engine.getComponent(forEntity: entity.id) {
-      emitter.targetNode = self
-    }
-  }
-}
