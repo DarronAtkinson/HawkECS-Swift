@@ -7,10 +7,10 @@ Inspired by https://github.com/adamgit/Entity-System--RDBMS-Inspired--Objective-
 
 ## Protocols
 ### HKType
- - A protocol providing are type property that return the DynamicType as a String
+ - Provides a type property that returns the DynamicType as a String
 
 ### HKUpdatable
-  - A protocol declaring one function: updateWithDeltaTime(seconds: )
+  - Declares one function: updateWithDeltaTime(seconds: )
 
 ### HKComponent
   - Conforms to HKType and HKUpdatable
@@ -22,27 +22,39 @@ Inspired by https://github.com/adamgit/Entity-System--RDBMS-Inspired--Objective-
   - Conforms to HKType and HKUpdatable
   - Declares one property, var engine: HKEngine!
   - Use updateWithDeltaTime(seconds: ) to update components in your engine
-  - You can loop over the required component using: 
-        engine.components.all(componentType: ) -> [EntityID: HKComponent]
   - You can define your component system as a struct or a class
-  - Components can be updated using: 
-        update(component: , forEntity: )
 
 
 ## Structs
 Structs are favoured where possible
 ### HKEntity
-  - This is a simple struct allowing your code to be more readable
-  - It has three properties: 
-        name: String
+  - A simple struct allowing your code to be more readable
+  - It has five properties: 
+        identifier: HKEntityIdentifier
         ID: Int
+        name: String
+        group: String
         engine: HKEngine
+  - Provides convenience functions
+ 
+### HKEntityIdentifier
+  - Store identity data for the entities in your game
+  - It has three properties
+        id: Int
+        name: string
+        group: String
 
 ### HKComponentDictionary
   - The component dictionary is the heart of the engine
   - It stores all of the components in your game
   - Components are organised by type
   - Each type is further organised by entity id
+
+### HKEntityCollection
+  - The entity collection stores HKEntityIdentifier structs
+ 
+### HKSystemCollection
+  - Stores the HKComponentSystems used in your game
 
 
 ## Classes
@@ -91,28 +103,35 @@ note: GKAgent can be made into a component using the HKComponent protocol.
     // Pointer to engine
     weak let engine: HKEngine!
   
-    // Initialization
-    init() {}
+    // AddToEngine
+    func didMoveToEngine(engine: HKEngine) {
+      self.engine = engine
+    }
   
     // Update
     func updateWithDeltaTime(seconds: NSTimeInterval) {
     
-      for (entity, velocity) in engine.components.all(VelocityComponent.self) {
-      
-        guard let position: PositionComponent = engine.components.get(forEntity: entity) else { continue }
-      
+      engine.filter(VelocityComponent.self) {
+        entity, velocity in
+        
+        guard let position: PositionComponent = engine.getComponent(forEntity: entity) else { return }
+        
         let x = position.x + velocity.dx
         let y = position.y + velocity.dy
-      
+        
         update(PositionComponent(x: x, y: y), forEntity: entity)
       }
+  }
+    
+    func willMoveFrom(engine: HKEngine) {
+      self.engine = nil
     }
   }
 ```
 
 Create an entity
 ```Swift
-let entity = engine.addEntity()
+let entity = engine.createEntity("player", group: "userControlled")
 ```
 
 Add components
@@ -125,6 +144,14 @@ Retrieve a component
 ```Swift
 if let position: PositionComponent = entity.getComponent() {
   // Do something with position
+}
+```
+
+Adjust a component
+```Swift
+entity.adjustComponent(PositionComponent.self) {
+  $0.x = 0
+  $0.y = 0
 }
 ```
 
@@ -146,4 +173,28 @@ override func update(currentTime: CFTimeInterval) {
   lastUpdateInterval = currentTime
   
   engine.updateWithDeltaTime(deltaTime)
+}
+```
+
+Filter the entities
+```Swift
+let enemies = engine.getEntityGroup("enemies")
+let player = engine.getEntity("player")
+```
+
+Filter the components
+```Swift
+engine.filter(PositionComponent.self) {
+  entity, position in
+}
+
+engine.filter(PositionComponent.self, entityGroup: "enemies") {
+  entity, position in
+}
+```
+
+Filter the systems
+```Swift
+engine.filter(MovementSystem.self) {
+  movementSystem in
 }
