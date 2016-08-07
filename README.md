@@ -68,12 +68,6 @@ Structs are favoured where possible
   - Holds HKComponentSystems and sequentially updates them when updateWithDeltaTime(seconds: ) is called
 
 
-Feel free to use this ECS as an alternative to the GameplayKit ECS
-
-note: GKAgent can be made into a component using the HKComponent protocol. 
-      The updateWithDeltaTime(seconds: ) method 
-      will need to be called within your GKAgentComponentSystem
-
   
   
 ## Usage
@@ -202,3 +196,10 @@ Filter the systems
 engine.filter(MovementSystem.self) {
   movementSystem in
 }
+```
+
+Feel free to use this ECS as an alternative to the GameplayKit ECS
+
+note: GKAgent can be made into a component using the HKComponent protocol. 
+      The updateWithDeltaTime(seconds: ) method 
+      will need to be called within your GKAgentComponentSystem
