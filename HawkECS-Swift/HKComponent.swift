@@ -20,7 +20,22 @@
 import Foundation
 
 /**
- * A protocol that all components must conform to
+ ## HKComponent
+ 
+ A protocol that all components must conform to
+ 
+ ### Conforms to
+ - HKType
+ - HKUpdatable
+ 
+ Can be used to convert any struct, enum or class into a component that can be used with a HKEngine
+ 
+ #### Example
+      extension CGPoint: HKComponent
+      public typealias PositionComponent = CGPoint
+ 
+      extension SKNode: HKComponent
+      public typealias RenderComponent = SKNode
  */
 protocol HKComponent: HKType, HKUpdatable {
 
@@ -28,7 +43,7 @@ protocol HKComponent: HKType, HKUpdatable {
 
 
 /**
- * Provides a defulat blank implementation of HKUpdatable
+ Provides a defulat blank implementation of HKUpdatable
  */
 extension HKComponent {
   
