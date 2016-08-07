@@ -3,7 +3,9 @@
 # HawkECS-Swift
 A protocol oriented entity component system written in Swift
 
-Inspired by https://github.com/adamgit/Entity-System--RDBMS-Inspired--Objective-C
+Inspired by: 
+   https://github.com/adamgit/Entity-System--RDBMS-Inspired--Objective-C
+   http://www.swift-studies.com/blog/2015/7/21/making-gameplaykit-swift-ier
 
 ## Protocols
 ### HKType
