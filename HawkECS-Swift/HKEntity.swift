@@ -20,87 +20,231 @@
 import Foundation
 
 /**
- * A meta entity struct
+ ## HKEntity
+ 
+ A meta entity struct
+ 
+ ### Conforms to
+    - Hashable
+    - CustomStringConvertible
+    - CustomDebugStringConvertible
+ 
+ ### Properties
+ 
+ #### Private
+    - `unowned let engine: HKEngine`
+    - `let identifier: HKEntityIdentifier`
+ 
+ #### Public
+    - `var id: Int`
+    - `var name: String`
+    - `var group: String`
  */
 struct HKEntity {
   
   /**
-   * Optional name property, can be used to group entities
+   Identification data for the entity
    */
-  var name: String? = nil {
-    didSet {
-      engine.set(name, forEntity: ID)
-    }
-  }
+  private let identifier: HKEntityIdentifier
   
   /**
-   * A unique property, used to identify an entity in the engine
+   - Returns: The entity id
    */
-  let ID: Int
+  var id: Int { return identifier.id }
   
   /**
-   * An unowned pointer to the engine
+   - Returns: The entity name
    */
-  unowned private let engine: HKEngine
+  var name: String { return identifier.name }
   
   /**
-   * Initialize the entity with a name and ID
+   - Returns: The entity group
    */
-  init(name: String?, ID: Int, engine: HKEngine) {
-    self.ID = ID
-    self.name = name
+  var group: String { return identifier.group }
+  
+  /**
+   Pointer to the engine that holds the entity
+   */
+  private unowned let engine: HKEngine
+  
+  /**
+   Initialize the entity with an instance of HKEntityIdentifier
+   
+   - Parameters: 
+      - identity: An instance of HKEntityIdentifier
+      - engine: The engine that the entity belongs to
+   */
+  init(identity: HKEntityIdentifier, engine: HKEngine) {
+    identifier = identity
     self.engine = engine
   }
   
   /**
-   * Initialize the entity with an ID
+   Initialize the entity without using an instance of HKEntityIdentifier
+   
+   - Parameters:
+      - id: Unique `Int` representing the entity
+      - name: Unique `String` representing the entity
+      - group: A `String` used to group entities together
+      - engine: The engine that the entity belongs to
    */
-  init(ID: Int, engine: HKEngine) {
-    self.ID = ID
-    self.name = nil
+  init(id: Int, name: String, group: String, engine: HKEngine) {
+    identifier = HKEntityIdentifier(id: id, name: name, group: group)
     self.engine = engine
-  }
-  
-  /**
-   * Initialize the entity by letting the engine create the entity
-   */
-  init(engine: HKEngine) {
-    self = engine.addEntity()
   }
 }
 
-
+// MARK: Adjustments
 extension HKEntity {
   
   /**
-   * Adds a HKComponent to the entity
+   Checks if the entity has the given component
+   
+   - Parameter component: The component type to check
+   
+   - Returns: `true` if the entity has the specified component
+   
+   #### Example
+   
+        entity.hasComponent(ExampleComponent.self)
+   */
+  func hasComponent<T: HKComponent>(component: T.Type) -> Bool {
+    return engine.components.collection[T.type] != nil
+  }
+  
+  /**
+   Adds a component to the entity
+   
+   - Parameter component: The component to add
+   
+   #### Example
+   
+        entity.addComponent(ExampleComponent())
    */
   func addComponent(component: HKComponent) {
-    engine.components.insert(component, forEntity: ID)
+    engine.components.insert(component, forEntity: id)
   }
   
   /**
-   * Returns an optional HKComponent for the entity
+   Retieve a component belonging to the entity
+   
+   - Returns: The an optional HKComponent instance of the specified type
+   
+   #### Example
+   
+        if let component: ExampleComponent = entity.getComponent() {
+            // Do something with component
+        }
    */
   func getComponent<T: HKComponent>() -> T? {
-    return engine.components.get(forEntity: ID)
+    return engine.components.get(forEntity: id)
   }
   
   /**
-   * Removes the given component from the entity
+   Remove a component from the entity
+   
+   - Parameter component: The component to remove
+   
+   #### Example
+   
+        entity.removeComponent(ExampleComponent.self)
    */
   func removeComponent(component: HKComponent.Type) {
-    engine.components.remove(component.type, forEntity: ID)
+    engine.components.remove(component.type, forEntity: id)
   }
   
   /**
-   * Removes a RenderComponent from it's parent and then removes
-   * the entity from the engine
+   Adjust the properties of a component
+   - Important: Only use with struct components
+   
+   - Parameters:
+      - component: The component type to adjust
+      - runBlock: Provides the component to be mutated
+   
+   #### Example
+   
+        entity.adjustComponent(PositionComponent.self) {
+          $0.x += 10
+          $0.y += 10
+        }
+   */
+  func adjustComponent<T: HKComponent>(component: T.Type, runBlock: inout T -> ()) {
+    guard let comp: T = getComponent() else { return }
+    var c = comp
+    runBlock(&c)
+    addComponent(c)
+  }
+
+  /**
+   Removes the entity from the engine
+   
+   `removeEntity(id: )` is called on the HKEngineDelegate with the engine before removing any components. This allows for any renderable components to be removed from the scene
+   
+   #### Example
+   
+        entity.destroy()
    */
   func destroy() {
-    if let render: RenderComponent = getComponent() {
-      render.removeFromParent()
-    }
-    engine.remove(self)
+    engine.removeEntity(id)
   }
 }
+
+// MARK: Grouping
+extension HKEntity {
+  
+  /**
+   Retrieve an array of entities belonging to the same group
+   
+   - Returns: An array of HKEntity belong to the same group
+   
+   #### Example
+   
+        let group = entity.getEntityGroup()
+   */
+  func getEntityGroup() -> [HKEntity] {
+    return engine.getEntityGroup(group)
+  }
+}
+
+// MARK: Hashable
+extension HKEntity: Hashable {
+  
+  var hashValue: Int {
+    return identifier.hashValue
+  }
+}
+
+// MARK: Equatable
+func ==(lhs: HKEntity, rhs: HKEntity) -> Bool {
+  return lhs.hashValue == rhs.hashValue
+}
+
+// MARK: CustomStringConvertible
+extension HKEntity: CustomStringConvertible, CustomDebugStringConvertible {
+  
+  var description: String {
+    var s = identifier.description
+    let components = engine.components.entity(id)
+    s += "components: ["
+    for component in components {
+      s += "\n\t\(component.1.type)"
+    }
+    s += "]"
+    return s
+  }
+
+  var debugDescription: String {
+    var s = identifier.description
+    let components = engine.components.entity(id)
+    s += "components: ["
+    for component in components {
+      s += "\n\t\(component.1.type)"
+    }
+    s += "]"
+    return s
+  }
+}
+
+
+
+
