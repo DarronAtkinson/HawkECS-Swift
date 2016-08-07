@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Hawkecs-swift by DarronAtkinson</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Hawkecs-swift</h1>
+      <h2 class="project-tagline">A protocol oriented entity component system written in Swift</h2>
+      <a href="https://github.com/DarronAtkinson/HawkECS-Swift" class="btn">View on GitHub</a>
+      <a href="https://github.com/DarronAtkinson/HawkECS-Swift/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/DarronAtkinson/HawkECS-Swift/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p>Inspired by: </p>
+
+<p><a href="https://github.com/adamgit/Entity-System--RDBMS-Inspired--Objective-C">https://github.com/adamgit/Entity-System--RDBMS-Inspired--Objective-C</a></p>
+
+<p><a href="http://www.swift-studies.com/blog/2015/7/21/making-gameplaykit-swift-ier">http://www.swift-studies.com/blog/2015/7/21/making-gameplaykit-swift-ier</a></p>
+
+<h2>
+<a id="protocols" class="anchor" href="#protocols" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Protocols</h2>
+
+<h3>
+<a id="hktype" class="anchor" href="#hktype" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKType</h3>
+
+<ul>
+<li>Provides a type property that returns the DynamicType as a String</li>
+</ul>
+
+<h3>
+<a id="hkupdatable" class="anchor" href="#hkupdatable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKUpdatable</h3>
+
+<ul>
+<li>Declares one function: updateWithDeltaTime(seconds: )</li>
+</ul>
+
+<h3>
+<a id="hkcomponent" class="anchor" href="#hkcomponent" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKComponent</h3>
+
+<ul>
+<li>Conforms to HKType and HKUpdatable</li>
+<li>Provides a default implementation of HKUpdatable</li>
+<li>Can be used to turn anything in your code into a component. e.g SKPhysicsBody, CGPoint</li>
+<li>Immutable structs are preferred for components</li>
+</ul>
+
+<h3>
+<a id="hkcomponentsystem" class="anchor" href="#hkcomponentsystem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKComponentSystem</h3>
+
+<ul>
+<li>Conforms to HKType and HKUpdatable</li>
+<li>Declares one property, var engine: HKEngine!</li>
+<li>Use updateWithDeltaTime(seconds: ) to update components in your engine</li>
+<li>You can define your component system as a struct or a class</li>
+</ul>
+
+<h2>
+<a id="structs" class="anchor" href="#structs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Structs</h2>
+
+<p>Structs are favoured where possible</p>
+
+<h3>
+<a id="hkentity" class="anchor" href="#hkentity" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKEntity</h3>
+
+<ul>
+<li>A simple struct allowing your code to be more readable</li>
+<li>It has five properties: 
+    identifier: HKEntityIdentifier
+    ID: Int
+    name: String
+    group: String
+    engine: HKEngine</li>
+<li>Provides convenience functions</li>
+</ul>
+
+<h3>
+<a id="hkentityidentifier" class="anchor" href="#hkentityidentifier" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKEntityIdentifier</h3>
+
+<ul>
+<li>Store identity data for the entities in your game</li>
+<li>It has three properties
+    id: Int
+    name: string
+    group: String</li>
+</ul>
+
+<h3>
+<a id="hkcomponentdictionary" class="anchor" href="#hkcomponentdictionary" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKComponentDictionary</h3>
+
+<ul>
+<li>The component dictionary is the heart of the engine</li>
+<li>It stores all of the components in your game</li>
+<li>Components are organised by type</li>
+<li>Each type is further organised by entity id</li>
+</ul>
+
+<h3>
+<a id="hkentitycollection" class="anchor" href="#hkentitycollection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKEntityCollection</h3>
+
+<ul>
+<li>The entity collection stores HKEntityIdentifier structs</li>
+</ul>
+
+<h3>
+<a id="hksystemcollection" class="anchor" href="#hksystemcollection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKSystemCollection</h3>
+
+<ul>
+<li>Stores the HKComponentSystems used in your game</li>
+</ul>
+
+<h2>
+<a id="classes" class="anchor" href="#classes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Classes</h2>
+
+<h3>
+<a id="hkengine" class="anchor" href="#hkengine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HKEngine</h3>
+
+<ul>
+<li>Conforms to HKUpdatable</li>
+<li>Manages creating and maintaining entities</li>
+<li>Holds HKComponentSystems and sequentially updates them when updateWithDeltaTime(seconds: ) is called</li>
+</ul>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Initialize</p>
+
+<div class="highlight highlight-source-swift"><pre>  <span class="pl-k">let</span> engine <span class="pl-k">=</span> HKEngine()</pre></div>
+
+<p>Create a custom component</p>
+
+<div class="highlight highlight-source-swift"><pre>  <span class="pl-k">struct</span> HealthComponent: HKComponent {
+    <span class="pl-k">let</span> <span class="pl-c1">max</span> <span class="pl-k">=</span> <span class="pl-c1">100</span>
+    <span class="pl-k">let</span> current <span class="pl-k">=</span> <span class="pl-c1">100</span>
+  }</pre></div>
+
+<p>Use built in structs and class as components</p>
+
+<div class="highlight highlight-source-swift"><pre>  <span class="pl-k">extension</span> CGPoint: HKComponent {}
+  <span class="pl-k">public</span> <span class="pl-k">typealias</span> PositionComponent <span class="pl-k">=</span> CGPoint
+
+  <span class="pl-k">extension</span> CGVector: HKComponent {}
+  <span class="pl-k">public</span> <span class="pl-k">typealias</span> VelocityComponent <span class="pl-k">=</span> CGVector</pre></div>
+
+<p>Create a component system</p>
+
+<div class="highlight highlight-source-swift"><pre>  <span class="pl-k">struct</span> MovementSystem: HKComponentSystem {
+
+    <span class="pl-c">// Pointer to engine</span>
+    <span class="pl-k">weak</span> <span class="pl-k">let</span> engine: HKEngine<span class="pl-k">!</span>
+
+    <span class="pl-c">// AddToEngine</span>
+    <span class="pl-k">func</span> <span class="pl-en">didMoveToEngine</span>(engine: HKEngine) {
+      <span class="pl-k">self</span><span class="pl-k">.</span>engine <span class="pl-k">=</span> engine
+    }
+
+    <span class="pl-c">// Update</span>
+    <span class="pl-k">func</span> <span class="pl-en">updateWithDeltaTime</span>(seconds: NSTimeInterval) {
+
+      engine<span class="pl-k">.</span><span class="pl-c1">filter</span>(VelocityComponent<span class="pl-k">.</span><span class="pl-k">self</span>) {
+        entity, velocity <span class="pl-k">in</span>
+
+        <span class="pl-k">guard</span> <span class="pl-k">let</span> position: PositionComponent <span class="pl-k">=</span> engine<span class="pl-k">.</span>getComponent(forEntity: entity) <span class="pl-k">else</span> { <span class="pl-k">return</span> }
+
+        <span class="pl-k">let</span> x <span class="pl-k">=</span> position<span class="pl-k">.</span>x <span class="pl-k">+</span> velocity<span class="pl-k">.</span>dx
+        <span class="pl-k">let</span> y <span class="pl-k">=</span> position<span class="pl-k">.</span>y <span class="pl-k">+</span> velocity<span class="pl-k">.</span>dy
+
+        update(PositionComponent(x: x, y: y), forEntity: entity)
+      }
+  }
+
+    <span class="pl-k">func</span> <span class="pl-en">willMoveFrom</span>(engine: HKEngine) {
+      <span class="pl-k">self</span><span class="pl-k">.</span>engine <span class="pl-k">=</span> <span class="pl-c1">nil</span>
+    }
+  }</pre></div>
+
+<p>Create an entity</p>
+
+<div class="highlight highlight-source-swift"><pre><span class="pl-k">let</span> entity <span class="pl-k">=</span> engine<span class="pl-k">.</span>createEntity(<span class="pl-s"><span class="pl-pds">"</span>player<span class="pl-pds">"</span></span>, group: <span class="pl-s"><span class="pl-pds">"</span>userControlled<span class="pl-pds">"</span></span>)</pre></div>
+
+<p>Add components</p>
+
+<div class="highlight highlight-source-swift"><pre>entity<span class="pl-k">.</span>addComponent(PositionComponent())
+entity<span class="pl-k">.</span>addComponent(VelocityComponent())</pre></div>
+
+<p>Retrieve a component</p>
+
+<div class="highlight highlight-source-swift"><pre><span class="pl-k">if</span> <span class="pl-k">let</span> position: PositionComponent <span class="pl-k">=</span> entity<span class="pl-k">.</span>getComponent() {
+  <span class="pl-c">// Do something with position</span>
+}</pre></div>
+
+<p>Adjust a component</p>
+
+<div class="highlight highlight-source-swift"><pre>entity<span class="pl-k">.</span>adjustComponent(PositionComponent<span class="pl-k">.</span><span class="pl-k">self</span>) {
+  $<span class="pl-c1">0</span><span class="pl-k">.</span>x <span class="pl-k">=</span> <span class="pl-c1">0</span>
+  $<span class="pl-c1">0</span><span class="pl-k">.</span>y <span class="pl-k">=</span> <span class="pl-c1">0</span>
+}</pre></div>
+
+<p>Remove a component</p>
+
+<div class="highlight highlight-source-swift"><pre>entity<span class="pl-k">.</span>removeComponent(PositionComponent<span class="pl-k">.</span><span class="pl-k">self</span>)</pre></div>
+
+<p>Remove an entity</p>
+
+<div class="highlight highlight-source-swift"><pre>entity<span class="pl-k">.</span><span class="pl-c1">destroy</span>()</pre></div>
+
+<p>Update the engine</p>
+
+<div class="highlight highlight-source-swift"><pre><span class="pl-k">override</span> <span class="pl-k">func</span> <span class="pl-en">update</span>(currentTime: CFTimeInterval) {
+  deltaTime <span class="pl-k">=</span> currentTime <span class="pl-k">-</span> timeSinceLastUpdate
+  deltaTime <span class="pl-k">=</span> deltaTime <span class="pl-k">&gt;</span> maxUpdateInterval <span class="pl-k">?</span> maxUpdateInterval <span class="pl-k">:</span> deltaTime
+  lastUpdateInterval <span class="pl-k">=</span> currentTime
+
+  engine<span class="pl-k">.</span>updateWithDeltaTime(deltaTime)
+}</pre></div>
+
+<p>Filter the entities</p>
+
+<div class="highlight highlight-source-swift"><pre><span class="pl-k">let</span> enemies <span class="pl-k">=</span> engine<span class="pl-k">.</span>getEntityGroup(<span class="pl-s"><span class="pl-pds">"</span>enemies<span class="pl-pds">"</span></span>)
+<span class="pl-k">let</span> player <span class="pl-k">=</span> engine<span class="pl-k">.</span>getEntity(<span class="pl-s"><span class="pl-pds">"</span>player<span class="pl-pds">"</span></span>)</pre></div>
+
+<p>Filter the components</p>
+
+<div class="highlight highlight-source-swift"><pre>engine<span class="pl-k">.</span><span class="pl-c1">filter</span>(PositionComponent<span class="pl-k">.</span><span class="pl-k">self</span>) {
+  entity, position <span class="pl-k">in</span>
+}
+
+engine<span class="pl-k">.</span><span class="pl-c1">filter</span>(PositionComponent<span class="pl-k">.</span><span class="pl-k">self</span>, entityGroup: <span class="pl-s"><span class="pl-pds">"</span>enemies<span class="pl-pds">"</span></span>) {
+  entity, position <span class="pl-k">in</span>
+}</pre></div>
+
+<p>Filter the systems</p>
+
+<div class="highlight highlight-source-swift"><pre>engine<span class="pl-k">.</span><span class="pl-c1">filter</span>(MovementSystem<span class="pl-k">.</span><span class="pl-k">self</span>) {
+  movementSystem <span class="pl-k">in</span>
+}</pre></div>
+
+<p>Feel free to use this ECS as an alternative to the GameplayKit ECS</p>
+
+<p>note: GKAgent can be made into a component using the HKComponent protocol. 
+      The updateWithDeltaTime(seconds: ) method 
+      will need to be called within your GKAgentComponentSystem</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/DarronAtkinson/HawkECS-Swift">Hawkecs-swift</a> is maintained by <a href="https://github.com/DarronAtkinson">DarronAtkinson</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
