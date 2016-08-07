@@ -20,32 +20,51 @@
 import Foundation
 
 /**
- * Provides a type property that gives the name of the structure as a string
+ ## HKType
+ 
+ Provides a type property that can return the name of the structure as a string
+ 
+ ### Properties
+ - `static var type: String`
+ 
+ - `var type: String`
  */
 protocol HKType {
 
 }
 
 /**
- * Provides two properties for anything that conforms to HKType
+ Provides two properties for anything that conforms to HKType
  */
 extension HKType {
   
   /**
-   * Static property that returns self.dynamicType as a String
+   Provides a String property used to identify a structure
+   - Returns: `self.dynamicType` as a String
    */
   static var type: String { return String(self.dynamicType) }
   
   /**
-   * Returns self.dynamicType as a String
+   Provides a String property used to identify a structure
+   - Returns: `self.dynamicType` as a String
    */
   var type: String { return Self.type }
 }
 
 
 /**
- * Declares an updateWithDeltaTime(seconds: ) function
+ ## HKUpdatable
+ 
+ Conformance to HKUpdatable required an implementation of `updateWithDeltaTime(seconds: )`
+ 
+ ### Functions:
+ 
+ `updateWithDeltaTime(seconds: )`
  */
 protocol HKUpdatable {
+  
+  /**
+  Allows a structure to be updated
+  */
   func updateWithDeltaTime(seconds: NSTimeInterval)
 }
