@@ -20,7 +20,7 @@ Inspired by:
   - Conforms to HKType and HKUpdatable
   - Provides a default implementation of HKUpdatable
   - Can be used to turn anything in your code into a component. e.g SKPhysicsBody, CGPoint
-  - Immutable structs are prefered for components
+  - Immutable structs are preferred for components
 
 ### HKComponentSystem
   - Conforms to HKType and HKUpdatable
@@ -135,7 +135,7 @@ let entity = engine.createEntity("player", group: "userControlled")
 Add components
 ```Swift
 entity.addComponent(PositionComponent())
-entity.addComponent(VelocityCompenent())
+entity.addComponent(VelocityComponent())
 ```
 
 Retrieve a component
