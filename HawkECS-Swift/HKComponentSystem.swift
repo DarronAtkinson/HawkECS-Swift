@@ -20,36 +20,99 @@
 import Foundation
 
 /**
- * Allows any struct or class to be used as a comopnent system in a HKEngine
+ ## HKComponentSystem
+ 
+ Allows any struct or class to be used as a component system
+ 
+ ### Conforms to
+    - HKType
+    - HKUpdatable
+ 
+ ### Properties
+    - `var engine: HKEngine! { get set }`
+ 
+ ### Functions
+  - `mutating func didMoveTo(engine: HKEngine)`
+  - `mutating func willMoveFrom(engine: HKEngine)`
+ 
+ Provides default implementations of the following functions:
+  - `func filter<T: HKComponent>(component: T.Type) -> [(Int, T)]`
+  - `func update(component: HKComponent, forEntity id: Int)`
+  - `func update(components: [HKComponent], forEntity id: Int)`
  */
 protocol HKComponentSystem: HKType, HKUpdatable {
   /**
-   * A pointer the the engine that holds the component system
+   A pointer the the engine that holds the component system
    */
   var engine: HKEngine! { get set }
   
-  //func didMoveToEngine()
-  //func willMoveFromEngine()
+  /**
+   Called when a system is added to an engine
+   
+   - Parameter engine: The HKEngine instance that holds the system
+   */
+  mutating func didMoveTo(engine: HKEngine)
+  
+  /**
+   Called when a system is removed from an engine
+   
+   - Parameter engine: The HKEngine instance that holds the system
+   */
+  mutating func willMoveFrom(engine: HKEngine)
 }
 
 extension HKComponentSystem {
   
   /**
-   * Filters all entities in the engine with the component type given
-   */
+  Filters all entities in the engine with the component type given
+   
+  - Parameter component: The HKComponent to filter
+   
+  - Returns: An array of `(Int, HKComponent)`
+   
+   #### Example
+   
+        for (entityID, position) in filter(PositionComponent.self) {
+          // Update position
+        }
+   
+  */
   func filter<T: HKComponent>(component: T.Type) -> [(Int, T)] {
     return engine.components.all(component)
   }
   
   /**
-   * Updates a component in the engine. Used when a component is a struct
+   Updates a component in the engine. 
+   
+   - Important: Only use when a component is a value type
+   
+   - Parameters:
+      - component: The HKComponent to update
+      - forEntity: The entity id to update
+   
+   #### Example
+   
+        let updatedComponent = update(component)
+        update(updatedComponent, forEntity: entity)
    */
   func update(component: HKComponent, forEntity id: Int) {
     engine.components.insert(component, forEntity: id)
   }
   
   /**
-   * Updates components in the engine. Used when the components are structs
+   Updates a group of components in the engine.
+   
+   - Important: Only use when the components are value types
+   
+   - Parameters:
+      - components: An array HKComponent to update
+      - forEntity: The entity id to update
+   
+   #### Example
+   
+        let pos = update(position)
+        let vel = update(velocity)
+        update([pos, vel], forEntity: entity)
    */
   func update(components: [HKComponent], forEntity id: Int) {
     engine.components.insert(components, forEntity: id)
