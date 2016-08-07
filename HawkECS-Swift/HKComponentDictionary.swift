@@ -21,41 +21,70 @@ import Foundation
 import CoreGraphics
 
 // MARK: Declaration
+/**
+ ## HKComponentDictionary
+ 
+ A custom collection type used to store HKComponents
+ 
+ ### Properties
+ 
+ #### TypeAliases
+ - `EntityID = Int`
+ - `ByEntity = [EntityID: HKComponent]`
+ - `ComponentType = String`
+ - `Collection = [ComponentType: ByEntity]`
+ 
+ #### Private
+ - `var collection: Collection`
+ 
+ #### Public
+ - `isEmpty: Bool`
+ 
+ */
 struct HKComponentDictionary {
   /**
-   * EntityID is a typealias for Int
+   EntityID is a typealias for `Int`
    */
   typealias EntityID = Int
   
   /**
-   * ComponentType is a typealias for String
+   ComponentType is a typealias for `String`
    */
   typealias ComponentType = String
   
   /**
-   * ByEntity is a typealias for Dictionary<EntityID, HKComponent>
+   ByEntity is a typealias for `[EntityID: HKComponent]`
    */
   typealias ByEntity = [EntityID: HKComponent]
   
   /**
-   * Collection is a typealias for Dictionary<ComponentType, ByEntity>
+   Collection is a typealias for `[ComponentType, ByEntity]`
    */
   typealias Collection = [ComponentType: ByEntity]
   
   /**
-   * The collection property holds the data in the component dictioanry
+   The collection property holds the data in the component dictionary
    */
   private(set) var collection: Collection
   
   /**
-   * Initializes the component dictionary with no components in the collection
+   A `Bool` to indicate whether the collection is empty
+   
+   - Returns: `true` if the collection is empty
+   */
+  var isEmpty: Bool {
+    return collection.isEmpty
+  }
+  
+  /**
+   Initializes an empty collection
    */
   init() {
     collection = [:]
   }
   
   /**
-   * Initializes the component dictionary with components from another collection
+   Initializes the component dictionary with components from another collection
    */
   init(collection: Collection) {
     self.collection = collection
@@ -66,14 +95,33 @@ struct HKComponentDictionary {
 extension HKComponentDictionary {
   
   /**
-   * Returns the component of the specified type for the given entity ID
+   Retreive a component from the collection
+   
+   - Parameter forEntity: The id for the entity
+   
+   - Returns: An optional component for the specified type
+   
+   #### Example
+   
+        if let position: PositionComponent = components.get(forEntity: 1) {
+          // Do something with position
+        }
    */
   func get<T: HKComponent>(forEntity id: EntityID) -> T? {
     return collection[T.type]?[id] as? T
   }
   
   /**
-   * Adds the component to the collection for the given entity ID
+   Insert a component into the collection
+   
+   - Parameters:
+      - component: The component to be added
+      - forEntity: The id for the entity
+   
+   #### Example
+   
+        let position = PositionComponent(x: 10, y: 30)
+        components.insert(position, forEntity: 1)
    */
   mutating func insert(component: HKComponent, forEntity id: EntityID) {
     
@@ -91,7 +139,16 @@ extension HKComponentDictionary {
   }
   
   /**
-   * Adds the components to the collection for the given entity ID
+   Insert multiple components into the collection
+   
+   - Parameters:
+      - components: An array of components to be added
+      - forEntity: The id of the entity
+   
+   #### Example
+   
+        let positions = [PositionComponent(), VelocityComponent()]
+        components.insert(components, forEntity: 2)
    */
   mutating func insert(components: [HKComponent], forEntity id: EntityID) {
     
@@ -101,21 +158,43 @@ extension HKComponentDictionary {
   }
   
   /**
-   * Removes the component from the collection for the given entity ID
+   Remove a component from the collection
+   
+   - Parameters:
+      - component: The component to be remove, declared as `ExampleComponent.self`
+      - forEntity: The id for the entity
+   
+   #### Example
+   
+        components.remove(PositionComponent.self, forEntity: 1)
    */
   mutating func remove<T: HKComponent>(component: T.Type, forEntity id: EntityID) {
     collection[T.type]?.removeValueForKey(id)
   }
   
   /**
-   * Removes the component from the collection for the given entity ID
+   Remove a component from the collection
+   
+   - Parameters:
+      - component: A `String` equal to the result of `HKComponent.type`
+      - forEntity: The id for the entity
+   
+   #### Example
+   
+        components.remove("PositionComponent", forEntity: 1)
    */
   mutating func remove(component: ComponentType, forEntity id: EntityID) {
     collection[component]?.removeValueForKey(id)
   }
   
   /**
-   * Removes all the components from the collection for the given entity ID
+   Removes all the components from the collection for the given entity ID
+   
+   - Parameter entity: The id of the entity to remove
+   
+   #### Example
+   
+        components.remove(entity: 1)
    */
   mutating func remove(entity id: EntityID) {
 
@@ -125,7 +204,32 @@ extension HKComponentDictionary {
   }
   
   /**
-   * Updates the component in the collection for the given entity ID
+   Remove all components from the collection
+   
+   #### Example
+   
+        components.removeAll()
+   */
+  mutating func removeAll() {
+    collection.removeAll()
+  }
+  
+  /**
+   Updates the component in the collection for the given entity ID
+   
+   - Important: Only needs to be used when a component is a value type. e.g. struct or enum
+   
+   - Parameters:
+      - component: An instance of HKComponent
+      - forEntity: The id for the entity
+   
+   #### Example
+   
+        let x = position.x += velocity.dx
+        let y = position.y += velocity.dy
+        let updatedPosition = PositionComponent(x: x, y: y)
+   
+        components.update(updatedPosition, forEntity: 1)
    */
   mutating func update<T: HKComponent>(component: T, forEntity id: EntityID) {
     insert(component, forEntity: id)
@@ -138,7 +242,15 @@ extension HKComponentDictionary {
 extension HKComponentDictionary {
   
   /**
-   * Returns an array of components for the given type
+   Retrieve an array of components for the specified type
+   
+   e.g. `let array: [ExampleComponent] = components.all()`
+   
+   - Returns: An array of components for the specified type
+   
+   #### Example
+   
+        let positions: [PositionComponent] = components.all()
    */
   func all<T: HKComponent>() -> [T] {
     guard let byEntity = collection[T.type] else {
@@ -149,7 +261,15 @@ extension HKComponentDictionary {
   }
   
   /**
-   * Returns a dictionary of components for the given entity
+   Retrieve a dictionary of components for an entity
+   
+   - Parameter id: The entity id
+   
+   - Returns: A `Dictionary` of components for the specified entity id
+   
+   #### Example
+   
+        let entity = components.entity(1)
    */
   func entity(id: EntityID) -> [ComponentType: HKComponent] {
     
@@ -165,7 +285,17 @@ extension HKComponentDictionary {
   }
   
   /**
-   * Returns and array of (EntityID, HKComponent) for all components of the given type
+   Retrieve an array of `(EntityID, HKComponent)` for all components of the given type
+   
+   - Parameter component: The type of component to find
+   
+   - Returns: An array of `(EntityID, HKComponent)'
+   
+   #### Example
+   
+        for (entityID, position) in components.all(PositionComponent.self) {
+          // Do something
+        }
    */
   func all<T: HKComponent>(component: T.Type) -> [(EntityID, T)] {
     return collection[component.type]!.map({ ($0, $1 as! T) })
